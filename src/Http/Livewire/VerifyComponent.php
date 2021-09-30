@@ -55,7 +55,7 @@ class VerifyComponent extends Component
             //
             $this->verified = true;
         } else {
-            $this->addError('form', $response->json()["message"]);
+            $this->addError('form', $response->json()["message"] ?? "Purchase code verification failed");
         }
     }
 
