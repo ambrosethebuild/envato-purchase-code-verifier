@@ -1,6 +1,6 @@
 <?php
 
-namespace Livewire\Features;
+namespace Livewire\RenameMe;
 
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;

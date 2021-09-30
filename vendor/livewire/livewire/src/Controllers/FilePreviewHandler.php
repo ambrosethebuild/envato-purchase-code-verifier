@@ -12,9 +12,6 @@ class FilePreviewHandler
     {
         abort_unless(request()->hasValidSignature(), 401);
 
-        return $this->pretendResponseIsFile(
-            FileUploadConfiguration::storage()->path(FileUploadConfiguration::path($filename)),
-            FileUploadConfiguration::mimeType($filename)
-        );
+        return $this->pretendResponseIsFile(FileUploadConfiguration::storage()->path(FileUploadConfiguration::path($filename)));
     }
 }

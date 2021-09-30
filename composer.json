@@ -16,7 +16,7 @@
     "require": {
         "php": "^7.4|^8.0",
         "illuminate/contracts": "^8.0",
-        "livewire/livewire": "^2.6",
+        "livewire/livewire": "2.3",
         "anlutro/l4-settings": "^1.0"
     },
     "extra": {

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "07c132f1349aedc1c470c4fdb7a2477a",
+    "content-hash": "baf9831e01f52dd4fd66336ffdc00315",
     "packages": [
         {
             "name": "anlutro/l4-settings",
@@ -883,23 +883,23 @@
         },
         {
             "name": "livewire/livewire",
-            "version": "v2.6.7",
+            "version": "v2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/livewire/livewire.git",
-                "reference": "7e8ded3cc496858b0a35c1c9355e5af79985bd0c"
+                "reference": "0674d4cb8e598ce67df00fb95472c73e668b1416"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/livewire/livewire/zipball/7e8ded3cc496858b0a35c1c9355e5af79985bd0c",
-                "reference": "7e8ded3cc496858b0a35c1c9355e5af79985bd0c",
+                "url": "https://api.github.com/repos/livewire/livewire/zipball/0674d4cb8e598ce67df00fb95472c73e668b1416",
+                "reference": "0674d4cb8e598ce67df00fb95472c73e668b1416",
                 "shasum": ""
             },
             "require": {
                 "illuminate/database": "^7.0|^8.0",
                 "illuminate/support": "^7.0|^8.0",
                 "illuminate/validation": "^7.0|^8.0",
-                "php": "^7.2.5|^8.0",
+                "php": "^7.2.5",
                 "symfony/http-kernel": "^5.0"
             },
             "require-dev": {
@@ -943,7 +943,7 @@
             "description": "A front-end framework for Laravel.",
             "support": {
                 "issues": "https://github.com/livewire/livewire/issues",
-                "source": "https://github.com/livewire/livewire/tree/v2.6.7"
+                "source": "https://github.com/livewire/livewire/tree/v2.3.0"
             },
             "funding": [
                 {
@@ -951,7 +951,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-09-25T22:50:47+00:00"
+            "time": "2020-10-15T17:49:47+00:00"
         },
         {
             "name": "nesbot/carbon",

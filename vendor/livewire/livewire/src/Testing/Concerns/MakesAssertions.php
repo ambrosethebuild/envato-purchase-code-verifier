@@ -2,11 +2,10 @@
 
 namespace Livewire\Testing\Concerns;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Testing\Constraints\SeeInOrder;
-use Livewire\Features\SupportRootElementTracking;
 use PHPUnit\Framework\Assert as PHPUnit;
 
 trait MakesAssertions
@@ -25,13 +24,6 @@ trait MakesAssertions
     public function assertNotSet($name, $value)
     {
         PHPUnit::assertNotEquals($value, $this->get($name));
-
-        return $this;
-    }
-
-    public function assertCount($name, $value)
-    {
-        PHPUnit::assertCount($value, $this->get($name));
 
         return $this;
     }
@@ -58,26 +50,22 @@ trait MakesAssertions
         return $this;
     }
 
-    public function assertSee($values, $escape = true)
+    public function assertSee($value)
     {
-        foreach (Arr::wrap($values) as $value) {
-            PHPUnit::assertStringContainsString(
-                $escape ? e($value): $value,
-                $this->stripOutInitialData($this->lastRenderedDom)
-            );
-        }
+        PHPUnit::assertStringContainsString(
+            e($value),
+            $this->stripOutInitialData($this->lastRenderedDom)
+        );
 
         return $this;
     }
 
-    public function assertDontSee($values, $escape = true)
+    public function assertDontSee($value)
     {
-        foreach (Arr::wrap($values) as $value) {
-            PHPUnit::assertStringNotContainsString(
-                $escape ? e($value): $value,
-                $this->stripOutInitialData($this->lastRenderedDom)
-            );
-        }
+        PHPUnit::assertStringNotContainsString(
+            e($value),
+            $this->stripOutInitialData($this->lastRenderedDom)
+        );
 
         return $this;
     }
@@ -124,9 +112,7 @@ trait MakesAssertions
 
     protected function stripOutInitialData($subject)
     {
-        $subject = preg_replace('/((?:[\n\s+]+)?wire:initial-data=\".+}"\n?|(?:[\n\s+]+)?wire:id=\"[^"]*"\n?)/m', '', $subject);
-
-        return SupportRootElementTracking::stripOutEndingMarker($subject);
+        return preg_replace('(wire:initial-data=\".+}")', '', $subject);
     }
 
     public function assertEmitted($value, ...$params)
@@ -215,7 +201,7 @@ trait MakesAssertions
                 $failed = optional($this->lastValidator)->failed() ?: [];
                 $rules = array_keys(Arr::get($failed, $key, []));
 
-                foreach ((array) $value as $rule) {
+                foreach ((array)$value as $rule) {
                     PHPUnit::assertContains(Str::studly($rule), $rules, "Component has no [{$rule}] errors for [{$key}] attribute.");
                 }
             }
@@ -229,7 +215,7 @@ trait MakesAssertions
         $errors = $this->lastErrorBag;
 
         if (empty($keys)) {
-            PHPUnit::assertTrue($errors->isEmpty(), 'Component has errors: "'.implode('", "', $errors->keys()).'"');
+            PHPUnit::assertTrue($errors->isEmpty(), 'Component has errors: "' . implode('", "', $errors->keys()) . '"');
 
             return $this;
         }
@@ -267,13 +253,6 @@ trait MakesAssertions
         return $this;
     }
 
-    public function assertNoRedirect()
-    {
-        PHPUnit::assertTrue(! isset($this->payload['effects']['redirect']));
-
-        return $this;
-    }
-
     public function assertViewIs($name)
     {
         PHPUnit::assertEquals($name, $this->lastRenderedView->getName());
@@ -291,38 +270,6 @@ trait MakesAssertions
             PHPUnit::assertTrue($value->is($this->lastRenderedView->gatherData()[$key]));
         } else {
             PHPUnit::assertEquals($value, $this->lastRenderedView->gatherData()[$key]);
-        }
-
-        return $this;
-    }
-
-    public function assertFileDownloaded($filename = null, $content = null, $contentType = null)
-    {
-        $downloadEffect = data_get($this->lastResponse, 'original.effects.download');
-
-        if ($filename) {
-            PHPUnit::assertEquals(
-                $filename,
-                data_get($downloadEffect, 'name')
-            );
-        } else {
-            PHPUnit::assertNotNull($downloadEffect);
-        }
-
-        if ($content) {
-            $downloadedContent = data_get($this->lastResponse, 'original.effects.download.content');
-
-            PHPUnit::assertEquals(
-                $content,
-                base64_decode($downloadedContent)
-            );
-        }
-
-        if ($contentType) {
-            PHPUnit::assertEquals(
-                $contentType,
-                data_get($this->lastResponse, 'original.effects.download.contentType')
-            );
         }
 
         return $this;

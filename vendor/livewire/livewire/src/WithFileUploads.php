@@ -51,16 +51,9 @@ trait WithFileUploads
         $this->emit('upload:errored', $name)->self();
 
         if (is_null($errorsInJson)) {
-            // Handle any translations/custom names
-            $translator = app()->make('translator');
-
-            $attribute = $translator->get("validation.attributes.{$name}");
-            if ($attribute === "validation.attributes.{$name}") $attribute = $name;
-
-            $message = trans('validation.uploaded', ['attribute' => $attribute]);
-            if ($message === 'validation.uploaded') $message = "The {$name} failed to upload.";
-
-            throw ValidationException::withMessages([$name => $message]);
+            $genericValidationMessage = trans('validation.uploaded', ['attribute' => $name]);
+            if ($genericValidationMessage === 'validation.uploaded') $genericValidationMessage = "The {$name} failed to upload.";
+            throw ValidationException::withMessages([$name => $genericValidationMessage]);
         }
 
         $errorsInJson = $isMultiple
@@ -103,10 +96,6 @@ trait WithFileUploads
         $storage = FileUploadConfiguration::storage();
 
         foreach ($storage->allFiles(FileUploadConfiguration::path()) as $filePathname) {
-            // On busy websites, this cleanup code can run in multiple threads causing part of the output
-            // of allFiles() to have already been deleted by another thread.
-            if (! $storage->exists($filePathname)) continue;
-
             $yesterdaysStamp = now()->subDay()->timestamp;
             if ($yesterdaysStamp > $storage->lastModified($filePathname)) {
                 $storage->delete($filePathname);

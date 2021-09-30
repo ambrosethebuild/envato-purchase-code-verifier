@@ -12,7 +12,6 @@ import MethodAction from '@/action/method'
 import ModelAction from '@/action/model'
 import DeferredModelAction from '@/action/deferred-model'
 import MessageBus from '../MessageBus'
-import { alpinifyElementsForMorphdom, getEntangleFunction } from './SupportAlpine'
 
 export default class Component {
     constructor(el, connection) {
@@ -23,8 +22,6 @@ export default class Component {
         this.lastFreshHtml = this.el.outerHTML
 
         this.id = this.el.getAttribute('wire:id')
-
-        this.checkForMultipleRootElements()
 
         this.connection = connection
 
@@ -67,25 +64,6 @@ export default class Component {
         return Object.values(this.serverMemo.children).map(child => child.id)
     }
 
-    checkForMultipleRootElements() {
-        // Count the number of elements between the first element in the component and the
-        // injected "component-end" marker. This is an HTML comment with notation.
-        let countElementsBeforeMarker = (el, carryCount = 0) => {
-            if (! el) return carryCount
-
-            // If we see the "end" marker, we can return the number of elements in between we've seen.
-            if (el.nodeType === Node.COMMENT_NODE && el.textContent.includes(`wire-end:${this.id}`)) return carryCount
-
-            let newlyDiscoveredEls = el.nodeType === Node.ELEMENT_NODE ? 1 : 0
-
-            return countElementsBeforeMarker(el.nextSibling, carryCount + newlyDiscoveredEls)
-        }
-
-        if (countElementsBeforeMarker(this.el.nextSibling) > 0) {
-            console.warn(`Livewire: Multiple root elements detected. This is not supported. See docs for more information https://laravel-livewire.com/docs/2.x/rendering-components#returning-blade`, this.el)
-        }
-    }
-
     initialize() {
         this.walk(
             // Will run for every node in the component tree (not child component nodes).
@@ -99,15 +77,7 @@ export default class Component {
         // The .split() stuff is to support dot-notation.
         return name
             .split('.')
-            .reduce((carry, segment) => typeof carry === 'undefined' ? carry : carry[segment], this.data)
-    }
-
-    getPropertyValueIncludingDefers(name) {
-        let action = this.deferredActions[name]
-
-        if (! action) return this.get(name)
-
-        return action.payload.value
+            .reduce((carry, segment) => carry[segment], this.data)
     }
 
     updateServerMemoFromResponseAndMergeBackIntoResponse(message) {
@@ -120,7 +90,7 @@ export default class Component {
                 Object.entries(value || {}).forEach(([dataKey, dataValue]) => {
                     this.serverMemo.data[dataKey] = dataValue
 
-                    if (message.shouldSkipWatcherForDataKey(dataKey)) return
+                    if (message.shouldSkipWatcher()) return
 
                     // Because Livewire (for payload reduction purposes) only returns the data that has changed,
                     // we can use all the data keys from the response as watcher triggers.
@@ -280,7 +250,12 @@ export default class Component {
     handleResponse(message) {
         let response = message.response
 
+        // This means "$this->redirect()" was called in the component. let's just bail and redirect.
+        if (response.effects.redirect) {
+            this.redirect(response.effects.redirect)
 
+            return
+        }
 
         this.updateServerMemoFromResponseAndMergeBackIntoResponse(message)
 
@@ -339,14 +314,8 @@ export default class Component {
             }
         }
 
+
         store.callHook('message.processed', message, this)
-
-        // This means "$this->redirect()" was called in the component. let's just bail and redirect.
-        if (response.effects.redirect) {
-            setTimeout(() => this.redirect(response.effects.redirect))
-
-            return
-        }
     }
 
     redirect(url) {
@@ -365,6 +334,8 @@ export default class Component {
             const modelValue = directives.get('model').value
 
             if (DOM.hasFocus(el) && ! dirtyInputs.includes(modelValue)) return
+
+            if (el.wasRecentlyAutofilled) return
 
             DOM.setInputValueFromModel(el, this)
         })
@@ -448,6 +419,19 @@ export default class Component {
                     to.selectedIndex = -1
                 }
 
+                // If the element is x-show.transition.
+                if (
+                    Array.from(from.attributes)
+                        .map(attr => attr.name)
+                        .some(
+                            name =>
+                                /x-show.transition/.test(name) ||
+                                /x-transition/.test(name)
+                        )
+                ) {
+                    from.__livewire_transition = true
+                }
+
                 let fromDirectives = wireDirectives(from)
 
                 // Honor the "wire:ignore" attribute or the .__livewire_ignore element property.
@@ -478,7 +462,12 @@ export default class Component {
                 // initialize in the context of a real Livewire component object.
                 if (DOM.isComponentRootEl(from)) to.__livewire = this
 
-                alpinifyElementsForMorphdom(from, to)
+                // If the element we are updating is an Alpine component...
+                if (from.__x) {
+                    // Then temporarily clone it (with it's data) to the "to" element.
+                    // This should simulate backend Livewire being aware of Alpine changes.
+                    window.Alpine.clone(from.__x, to)
+                }
             },
 
             onElUpdated: node => {
@@ -505,8 +494,6 @@ export default class Component {
                 this.morphChanges.added.push(node)
             },
         })
-
-        window.skipShow = false
     }
 
     walk(callback, callbackWhenNewComponentIsEncountered = el => { }) {
@@ -577,7 +564,7 @@ export default class Component {
         if (this.modelDebounceCallbacks) {
             this.modelDebounceCallbacks.forEach(callbackRegister => {
                 callbackRegister.callback()
-                callbackRegister.callback = () => { }
+                callbackRegister = () => { }
             })
         }
 
@@ -647,10 +634,15 @@ export default class Component {
 
         return (this.dollarWireProxy = new Proxy(refObj, {
             get(object, property) {
-                if (['_x_interceptor'].includes(property)) return
-
                 if (property === 'entangle') {
-                    return getEntangleFunction(component)
+                    return (name, defer = false) => ({
+                        isDeferred: defer,
+                        livewireEntangle: name,
+                        get defer() {
+                            this.isDeferred = true
+                            return this
+                        },
+                    })
                 }
 
                 if (property === '__instance') return component
@@ -658,9 +650,8 @@ export default class Component {
                 // Forward "emits" to base Livewire object.
                 if (typeof property === 'string' && property.match(/^emit.*/)) return function (...args) {
                     if (property === 'emitSelf') return store.emitSelf(component.id, ...args)
-                    if (property === 'emitUp') return store.emitUp(component.el, ...args)
 
-                    return store[property](...args)
+                    return store[property].apply(component, args)
                 }
 
                 if (

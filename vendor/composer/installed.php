@@ -1,22 +1,22 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => NULL,
+        'reference' => 'a21b5422361e1603c3214de636efc064755631ba',
         'name' => 'ambrosethebuild/envato-purchase-code-verifier',
         'dev' => true,
     ),
     'versions' => array(
         'ambrosethebuild/envato-purchase-code-verifier' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => NULL,
+            'reference' => 'a21b5422361e1603c3214de636efc064755631ba',
             'dev_requirement' => false,
         ),
         'anlutro/l4-settings' => array(
@@ -146,12 +146,12 @@
             'dev_requirement' => false,
         ),
         'livewire/livewire' => array(
-            'pretty_version' => 'v2.6.7',
-            'version' => '2.6.7.0',
+            'pretty_version' => 'v2.3.0',
+            'version' => '2.3.0.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../livewire/livewire',
             'aliases' => array(),
-            'reference' => '7e8ded3cc496858b0a35c1c9355e5af79985bd0c',
+            'reference' => '0674d4cb8e598ce67df00fb95472c73e668b1416',
             'dev_requirement' => false,
         ),
         'nesbot/carbon' => array(

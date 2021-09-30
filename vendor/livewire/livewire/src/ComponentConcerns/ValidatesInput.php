@@ -2,9 +2,6 @@
 
 namespace Livewire\ComponentConcerns;
 
-use function collect;
-use function count;
-use function explode;
 use function Livewire\str;
 use Livewire\ObjectPrybar;
 use Illuminate\Support\Collection;
@@ -152,13 +149,9 @@ trait ValidatesInput
             $this->getDataForValidation($rules)
         );
 
-        $ruleKeysToShorten = $this->getModelAttributeRuleKeysToShorten($data, $rules);
-
-        $data = $this->unwrapDataForValidation($data);
-
         $validator = Validator::make($data, $rules, $messages, $attributes);
 
-        $this->shortenModelAttributesInsideValidator($ruleKeysToShorten, $validator);
+        $this->shortenModelAttributes($data, $rules, $validator);
 
         $validatedData = $validator->validate();
 
@@ -171,40 +164,20 @@ trait ValidatesInput
     {
         [$rules, $messages, $attributes] = $this->providedOrGlobalRulesMessagesAndAttributes($rules, $messages, $attributes);
 
-        // If the field is "items.0.foo", validation rules for "items.*.foo" is applied.
-        // if the field is "items.0", validation rules for "items.*" and "items.*.foo" etc are applied.
-        $rulesForField = collect($rules)
-            ->filter(function ($rule, $fullFieldKey) use ($field) {
-                return str($field)->is($fullFieldKey);
-            })->keys()
-            ->flatMap(function($key) use ($rules) {
-                return collect($rules)->filter(function($rule, $ruleKey) use ($key) {
-                    return str($ruleKey)->is($key);
-                });
-            })->mapWithKeys(function ($value, $key) use ($field) {
-                $fieldArray = str($field)->explode('.');
-                $result = str($key)->explode('.');
-
-                $result->splice(0, $fieldArray->count(), $fieldArray->toArray());
-
-                return [
-                    $result->join('.') => $value,
-                ];
-            })->toArray();
+        // If the field is "items.0.foo", validation rules for "items.*.foo", "items.*", etc. are applied.
+        $rulesForField = collect($rules)->filter(function ($rule, $fullFieldKey) use ($field) {
+            return str($field)->is($fullFieldKey);
+        })->toArray();
 
         $ruleKeysForField = array_keys($rulesForField);
-        
+
         $data = $this->prepareForValidation(
             $this->getDataForValidation($rules)
         );
 
-        $ruleKeysToShorten = $this->getModelAttributeRuleKeysToShorten($data, $rules);
-
-        $data = $this->unwrapDataForValidation($data);
-
         $validator = Validator::make($data, $rulesForField, $messages, $attributes);
 
-        $this->shortenModelAttributesInsideValidator($ruleKeysToShorten, $validator);
+        $this->shortenModelAttributes($data, $rulesForField, $validator);
 
         try {
             $result = $validator->validate();
@@ -227,30 +200,18 @@ trait ValidatesInput
         return $result;
     }
 
-    protected function getModelAttributeRuleKeysToShorten($data, $rules)
+    protected function shortenModelAttributes($data, $rules, $validator)
     {
         // If a model ($foo) is a property, and the validation rule is
         // "foo.bar", then set the attribute to just "bar", so that
         // the validation message is shortened and more readable.
-
-        $toShorten = [];
-
         foreach ($rules as $key => $value) {
             $propertyName = $this->beforeFirstDot($key);
 
             if ($data[$propertyName] instanceof Model) {
-                $toShorten[] = $key;
-            }
-        }
-
-        return $toShorten;
-    }
-
-    protected function shortenModelAttributesInsideValidator($ruleKeys, $validator)
-    {
-        foreach ($ruleKeys as $key) {
-            if (str($key)->snake()->replace('_', ' ')->is($validator->getDisplayableAttribute($key))) {
-                $validator->addCustomAttributes([$key => $validator->getDisplayableAttribute($this->afterFirstDot($key))]);
+                if ($key === $validator->getDisplayableAttribute($key)) {
+                    $validator->addCustomAttributes([$key => $this->afterFirstDot($key)]);
+                }
             }
         }
     }
@@ -278,13 +239,8 @@ trait ValidatesInput
                 throw_unless(array_key_exists($propertyName, $properties), new \Exception('No property found for validation: ['.$ruleKey.']'));
             });
 
-        return $properties;
-    }
-
-    protected function unwrapDataForValidation($data)
-    {
-        return collect($data)->map(function ($value) {
-            if ($value instanceof Collection || $value instanceof EloquentCollection || $value instanceof Model) return $value->toArray();
+        return collect($properties)->map(function ($value) {
+            if ($value instanceof Collection || $value instanceof EloquentCollection) return $value->toArray();
 
             return $value;
         })->all();

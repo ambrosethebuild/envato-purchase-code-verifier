@@ -5,8 +5,6 @@ namespace Livewire;
 use Illuminate\Container\BoundMethod;
 use Illuminate\Contracts\Routing\UrlRoutable as ImplicitlyBindable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use ReflectionClass;
-use ReflectionNamedType;
 
 class ImplicitlyBoundMethod extends BoundMethod
 {
@@ -21,7 +19,7 @@ class ImplicitlyBoundMethod extends BoundMethod
             static::addDependencyForCallParameter($container, $parameter, $parameters, $dependencies);
         }
 
-        return array_values(array_merge($dependencies, $parameters));
+        return array_merge($dependencies, $parameters);
     }
 
     protected static function substituteNameBindingForCallParameter($parameter, array &$parameters, int &$paramIndex)
@@ -76,14 +74,14 @@ class ImplicitlyBoundMethod extends BoundMethod
 
     protected static function getClassForDependencyInjection($parameter)
     {
-        if (! is_null($className = static::getParameterClassName($parameter)) && ! static::implementsInterface($parameter)) {
+        if (! is_null($className = static::getParameterClassName($parameter)) && ! $parameter->getClass()->implementsInterface(ImplicitlyBindable::class)) {
             return $className;
         }
     }
 
     protected static function getClassForImplicitBinding($parameter)
     {
-        if (! is_null($className = static::getParameterClassName($parameter)) && static::implementsInterface($parameter)) {
+        if (! is_null($className = static::getParameterClassName($parameter)) && $parameter->getClass()->implementsInterface(ImplicitlyBindable::class)) {
             return $className;
         }
 
@@ -105,19 +103,6 @@ class ImplicitlyBoundMethod extends BoundMethod
     {
         $type = $parameter->getType();
 
-        if(!$type){
-            return null;
-        }
-
-        if(! $type instanceof ReflectionNamedType){
-            return null;
-        }
-
-        return (! $type->isBuiltin()) ? $type->getName() : null;
-    }
-
-    public static function implementsInterface($parameter)
-    {
-        return (new ReflectionClass($parameter->getType()->getName()))->implementsInterface(ImplicitlyBindable::class);
+        return ($type && ! $type->isBuiltin()) ? $type->getName() : null;
     }
 }

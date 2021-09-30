@@ -2,8 +2,6 @@
 
 namespace Livewire\Macros;
 
-use Illuminate\View\AnonymousComponent;
-
 class ViewMacros
 {
     public function extends()
@@ -23,33 +21,12 @@ class ViewMacros
     public function layout()
     {
         return function ($view, $params = []) {
-            $attributes = $params['attributes'] ?? [];
-            unset($params['attributes']);
-
-            if (is_subclass_of($view, \Illuminate\View\Component::class)) {
-                $layout = new $view();
-                $view = $layout->resolveView()->name();
-            } else {
-                $layout = new AnonymousComponent($view, $params);
-            }
-
-            $layout->withAttributes($attributes);
-
             $this->livewireLayout = [
                 'type' => 'component',
-                'slotOrSection' => 'slot',
+                'slotOrSection' => 'default',
                 'view' => $view,
-                'params' => array_merge($params, $layout->data()),
+                'params' => $params,
             ];
-
-            return $this;
-        };
-    }
-
-    public function layoutData()
-    {
-        return function ($data = []) {
-            $this->livewireLayout['params'] = $data;
 
             return $this;
         };

@@ -3,6 +3,7 @@
 namespace Livewire;
 
 use Stringable;
+use Illuminate\Support\Str;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\View\ComponentAttributeBag;
 
@@ -32,7 +33,7 @@ class WireDirective implements Htmlable, Stringable
 
     public function modifiers()
     {
-        return str($this->directive)
+        return Str::of($this->directive)
             ->replace("wire:{$this->name}", '')
             ->explode('.')
             ->filter()->values();

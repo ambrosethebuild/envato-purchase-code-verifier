@@ -2,8 +2,8 @@
 
 namespace Livewire\ComponentConcerns;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
-use function Livewire\str;
 
 trait InteractsWithProperties
 {
@@ -47,10 +47,7 @@ trait InteractsWithProperties
 
     public function getPublicPropertiesDefinedBySubClass()
     {
-        $publicProperties = array_filter((new \ReflectionObject($this))->getProperties(), function ($property) {
-            return $property->isPublic() && ! $property->isStatic();
-        });
-
+        $publicProperties = (new \ReflectionClass($this))->getProperties(\ReflectionProperty::IS_PUBLIC);
         $data = [];
 
         foreach ($publicProperties as $property) {
@@ -64,7 +61,7 @@ trait InteractsWithProperties
 
     public function getProtectedOrPrivatePropertiesDefinedBySubClass()
     {
-        $properties = (new \ReflectionObject($this))->getProperties(\ReflectionProperty::IS_PROTECTED | \ReflectionProperty::IS_PRIVATE);
+        $properties = (new \ReflectionClass($this))->getProperties(\ReflectionProperty::IS_PROTECTED | \ReflectionProperty::IS_PRIVATE);
         $data = [];
 
         foreach ($properties as $property) {
@@ -121,14 +118,14 @@ trait InteractsWithProperties
         return head(explode('.', $subject));
     }
 
-    public function afterFirstDot($subject) : string
+    public function afterFirstDot($subject)
     {
-        return str($subject)->after('.');
+        return Str::after($subject, '.');
     }
 
     public function propertyIsPublicAndNotDefinedOnBaseClass($propertyName)
     {
-        return collect((new \ReflectionObject($this))->getProperties(\ReflectionMethod::IS_PUBLIC))
+        return collect((new \ReflectionClass($this))->getProperties(\ReflectionMethod::IS_PUBLIC))
             ->reject(function ($property) {
                 return $property->class === self::class;
             })
@@ -145,8 +142,8 @@ trait InteractsWithProperties
         }
 
         foreach ($values as $key => $value) {
-            if (in_array($this->beforeFirstDot($key), $publicProperties)) {
-                data_set($this, $key, $value);
+            if (in_array($key, $publicProperties)) {
+                $this->{$key} = $value;
             }
         }
     }

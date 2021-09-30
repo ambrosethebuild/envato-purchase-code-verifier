@@ -1,6 +1,6 @@
 <?php
 
-namespace Livewire\Features;
+namespace Livewire\RenameMe;
 
 use Livewire\Livewire;
 use Livewire\Redirector;
@@ -20,7 +20,7 @@ class SupportRedirects
             app()->bind('redirect', function () use ($component) {
                 $redirector = app(Redirector::class)->component($component);
 
-                if (app()->has('session.store')) {
+                if (app('session.store')) {
                     $redirector->setSession(app('session.store'));
                 }
 
@@ -32,20 +32,14 @@ class SupportRedirects
             // Put the old redirector back into the container.
             app()->instance('redirect', array_pop(static::$redirectorCacheStack));
 
-            if (empty($component->redirectTo)) {
-                return;
-            }
-
-            $response->effects['redirect'] = $component->redirectTo;
-        });
-
-        Livewire::listen('component.dehydrate.subsequent', function ($component, $response) {
             // If there was no redirect. Clear flash session data.
-            if (empty($component->redirectTo) && app()->has('session.store')) {
+            if (empty($component->redirectTo)) {
                 session()->forget(session()->get('_flash.new'));
 
                 return;
             }
+
+            $response->effects['redirect'] = $component->redirectTo;
         });
     }
 }

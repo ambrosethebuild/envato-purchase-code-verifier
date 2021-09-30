@@ -1,6 +1,6 @@
 <?php
 
-namespace Livewire\Features;
+namespace Livewire\RenameMe;
 
 use Livewire\Livewire;
 use Livewire\TemporaryUploadedFile;

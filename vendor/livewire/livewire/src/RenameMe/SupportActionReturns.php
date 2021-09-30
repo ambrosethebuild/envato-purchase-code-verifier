@@ -1,6 +1,6 @@
 <?php
 
-namespace Livewire\Features;
+namespace Livewire\RenameMe;
 
 use Livewire\Livewire;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -14,12 +14,11 @@ class SupportActionReturns
 
     function __construct()
     {
-        Livewire::listen('action.returned', function ($component, $action, $returned, $id) {
+        Livewire::listen('action.returned', function ($component, $action, $returned) {
             if (is_array($returned) || is_numeric($returned) || is_bool($returned) || is_string($returned)) {
                 if (! isset($this->returnsByIdAndAction[$component->id])) $this->returnsByIdAndAction[$component->id] = [];
 
-
-                $this->returnsByIdAndAction[$component->id][$id] = $returned;
+                $this->returnsByIdAndAction[$component->id][$action] = $returned;
             }
         });
 

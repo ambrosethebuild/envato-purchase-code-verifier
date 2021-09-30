@@ -3,24 +3,19 @@
 namespace Livewire;
 
 use Illuminate\Support\Facades\URL;
-use League\Flysystem\Cached\CachedAdapter;
 
 class GenerateSignedUploadUrl
 {
     public function forLocal()
     {
         return URL::temporarySignedRoute(
-            'livewire.upload-file', now()->addMinutes(FileUploadConfiguration::maxUploadTime())
+            'livewire.upload-file', now()->addMinutes(5)
         );
     }
 
     public function forS3($file, $visibility = 'private')
     {
         $adapter = FileUploadConfiguration::storage()->getDriver()->getAdapter();
-
-        if ($adapter instanceof CachedAdapter) {
-            $adapter = $adapter->getAdapter();
-        }
 
         $fileType = $file->getMimeType();
         $fileHashName = TemporaryUploadedFile::generateHashNameWithOriginalNameEmbedded($file);
@@ -37,7 +32,7 @@ class GenerateSignedUploadUrl
 
         $signedRequest = $adapter->getClient()->createPresignedRequest(
             $command,
-            '+' . FileUploadConfiguration::maxUploadTime() . ' minutes'
+            '+5 minutes'
         );
 
         return [

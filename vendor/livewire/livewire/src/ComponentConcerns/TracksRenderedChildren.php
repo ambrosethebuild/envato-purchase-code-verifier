@@ -29,7 +29,7 @@ trait TracksRenderedChildren
 
     public function childHasBeenRendered($id)
     {
-        return in_array($id, array_keys($this->previouslyRenderedChildren), true);
+        return in_array($id, array_keys($this->previouslyRenderedChildren));
     }
 
     public function setPreviouslyRenderedChildren($children)

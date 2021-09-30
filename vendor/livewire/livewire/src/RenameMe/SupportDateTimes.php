@@ -1,11 +1,9 @@
 <?php
 
-namespace Livewire\Features;
+namespace Livewire\RenameMe;
 
 use DateTime;
 use Carbon\Carbon;
-use Carbon\CarbonImmutable;
-use DateTimeImmutable;
 use Livewire\Livewire;
 use Illuminate\Support\Carbon as IlluminateCarbon;
 
@@ -26,10 +24,6 @@ class SupportDateTimes
                 $response->memo['dataMeta']['dates'][$name] = 'illuminate';
             } elseif ($value instanceof Carbon) {
                 $response->memo['dataMeta']['dates'][$name] = 'carbon';
-            } elseif ($value instanceof CarbonImmutable) {
-                $response->memo['dataMeta']['dates'][$name] = 'carbonImmutable';
-            } elseif ($value instanceof DateTimeImmutable) {
-                $response->memo['dataMeta']['dates'][$name] = 'nativeImmutable';
             } else {
                 $response->memo['dataMeta']['dates'][$name] = 'native';
             }
@@ -40,9 +34,7 @@ class SupportDateTimes
 
             $types = [
                 'native' => DateTime::class,
-                'nativeImmutable' => DateTimeImmutable::class,
                 'carbon' => Carbon::class,
-                'carbonImmutable' => CarbonImmutable::class,
                 'illuminate' => IlluminateCarbon::class,
             ];
 

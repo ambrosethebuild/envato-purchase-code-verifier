@@ -1,5 +1,5 @@
 import store from '@/Store'
-import { wireDirectives } from '@/util'
+import { wireDirectives} from '@/util'
 
 export default function () {
     store.registerHook('component.initialized', component => {
@@ -30,42 +30,13 @@ export default function () {
             })
             .map(action => action.payload.method)
 
-        const actionsWithParams = message.updateQueue
-            .filter(action => {
-                return action.type === 'callMethod'
-            })
-            .map(action =>
-                generateSignatureFromMethodAndParams(
-                    action.payload.method,
-                    action.payload.params
-                )
-            )
-
         const models = message.updateQueue
             .filter(action => {
                 return action.type === 'syncInput'
             })
-            .map(action => {
-                let name = action.payload.name
-                if (! name.includes('.')) {
-                    return name
-                }
+            .map(action => action.payload.name)
 
-                let modelActions = []
-
-                modelActions.push(
-                    name.split('.').reduce((fullAction, part) => {
-                        modelActions.push(fullAction)
-
-                        return fullAction + '.' + part
-                    })
-                )
-
-                return modelActions
-            })
-            .flat()
-
-        setLoading(component, actions.concat(actionsWithParams).concat(models))
+        setLoading(component, actions.concat(models))
     })
 
     store.registerHook('message.failed', (message, component) => {
@@ -92,18 +63,11 @@ function processLoadingDirective(component, el, directive) {
     let directives = wireDirectives(el)
 
     if (directives.get('target')) {
-        let target = directives.get('target')
-        if (target.params.length > 0) {
-            actionNames = [
-                generateSignatureFromMethodAndParams(
-                    target.method,
-                    target.params
-                ),
-            ]
-        } else {
-            // wire:target overrides any automatic loading scoping we do.
-            actionNames = target.value.split(',').map(s => s.trim())
-        }
+        // wire:target overrides any automatic loading scoping we do.
+        actionNames = directives
+            .get('target')
+            .value.split(',')
+            .map(s => s.trim())
     } else {
         // If there is no wire:target, let's check for the existance of a wire:click="foo" or something,
         // and automatically scope this loading directive to that action.
@@ -233,7 +197,7 @@ function startLoading(els) {
                 () => {
                     el.style.display = directive.modifiers.includes('remove')
                         ? cache
-                        : getDisplayProperty(directive)
+                        : 'inline-block'
                 },
                 () => {
                     el.style.display = 'none'
@@ -243,38 +207,15 @@ function startLoading(els) {
     })
 }
 
-function getDisplayProperty(directive) {
-    return (['inline', 'block', 'table', 'flex', 'grid']
-        .filter(i => directive.modifiers.includes(i))[0] || 'inline-block')
-}
-
 function doAndSetCallbackOnElToUndo(el, directive, doCallback, undoCallback) {
     if (directive.modifiers.includes('remove'))
         [doCallback, undoCallback] = [undoCallback, doCallback]
 
     if (directive.modifiers.includes('delay')) {
-        let duration = 200
-
-        let delayModifiers = {
-            'shortest': 50,
-            'shorter': 100,
-            'short': 150,
-            'long': 300,
-            'longer': 500,
-            'longest': 1000,
-        }
-
-        Object.keys(delayModifiers).some(key => {
-            if(directive.modifiers.includes(key)) {
-                duration = delayModifiers[key]
-                return true
-            }
-        })
-
         let timeout = setTimeout(() => {
             doCallback()
             el.__livewire_on_finish_loading.push(() => undoCallback())
-        }, duration)
+        }, 200)
 
         el.__livewire_on_finish_loading.push(() => clearTimeout(timeout))
     } else {
@@ -289,8 +230,4 @@ function endLoading(els) {
             el.__livewire_on_finish_loading.shift()()
         }
     })
-}
-
-function generateSignatureFromMethodAndParams(method, params) {
-    return method + btoa(encodeURIComponent(params.toString()))
 }
