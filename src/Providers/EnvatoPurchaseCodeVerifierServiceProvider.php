@@ -25,8 +25,8 @@ class EnvatoPurchaseCodeVerifierServiceProvider extends ServiceProvider
         \Livewire::component('verify-component', \Ambrosethebuild\EnvatoPurchaseCodeVerifier\Http\Livewire\VerifyComponent::class);
 
         //check for verification 
-        $requestHost = app()->request()->getHost();
-        $ignoreDomain = in_array($requestHost,["fuodz.edentech.online"]);
+        $requestHost = request()->getHttpHost();
+        $ignoreDomain = in_array($requestHost, ["fuodz.edentech.online",'fuodz-admin.test']);
 
         if (!app()->runningInConsole() && !$ignoreDomain) {
             $verificationCode = $this->getVerificationCode();
