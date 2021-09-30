@@ -1,0 +1,4 @@
+<livewire:scripts />
+<x-livewire-alert::scripts />
+<script src="{{ asset('js/app.js') }}"></script>
+<script src="{{ asset('js/init-alpine.js') }}"></script>

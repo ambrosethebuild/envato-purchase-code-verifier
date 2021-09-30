@@ -1,0 +1,29 @@
+{
+    "name": "ambrosethebuild/envato-purchase-code-verifier",
+    "description": "For verifying laravel project purchase code from envato",
+    "autoload": {
+        "psr-4": {
+            "Ambrosethebuild\\EnvatoPurchaseCodeVerifier\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "ambrosethebuild",
+            "email": "bakoambrose@gmail.com"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "php": "^7.4|^8.0",
+        "illuminate/contracts": "^8.0",
+        "livewire/livewire": "^2.6",
+        "anlutro/l4-settings": "^1.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Ambrosethebuild\\EnvatoPurchaseCodeVerifier\\Providers\\EnvatoPurchaseCodeVerifierServiceProvider"
+            ]
+        }
+    }
+}
