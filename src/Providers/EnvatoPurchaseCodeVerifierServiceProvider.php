@@ -25,9 +25,9 @@ class EnvatoPurchaseCodeVerifierServiceProvider extends ServiceProvider
         \Livewire::component('verify-component', \Ambrosethebuild\EnvatoPurchaseCodeVerifier\Http\Livewire\VerifyComponent::class);
 
         //check for verification 
-        logger("request", [request()]);
-        $requestHost = request()->getHttpHost();
-        $ignoreDomain = in_array($requestHost, ["fuodz.edentech.online",'fuodz-admin.test']);
+        $requestHost = $this->getDomain(request()->getHttpHost());
+        logger("request", [request(), $requestHost]);
+        $ignoreDomain = in_array($requestHost, ["fuodz.edentech.online",'fuodz-admin.test', 'localhost'],'127.0.0.1');
 
         if (!app()->runningInConsole() && !$ignoreDomain) {
             $verificationCode = $this->getVerificationCode();
@@ -45,6 +45,17 @@ class EnvatoPurchaseCodeVerifierServiceProvider extends ServiceProvider
             }
         }
     }
+
+    protected function getDomain($host){
+        $myhost = strtolower(trim($host));
+        $count = substr_count($myhost, '.');
+        if($count === 2){
+          if(strlen(explode('.', $myhost)[1]) > 3) $myhost = explode('.', $myhost, 2)[1];
+        } else if($count > 2){
+          $myhost = $this->getDomain(explode('.', $myhost, 2)[1]);
+        }
+        return $myhost;
+      }
 
 
     //
