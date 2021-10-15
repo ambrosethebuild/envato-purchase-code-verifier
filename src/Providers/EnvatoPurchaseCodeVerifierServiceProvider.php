@@ -26,8 +26,7 @@ class EnvatoPurchaseCodeVerifierServiceProvider extends ServiceProvider
 
         //check for verification 
         $requestHost = $this->getDomain(request()->getHttpHost());
-        logger("request", [request(), $requestHost]);
-        $ignoreDomain = in_array($requestHost, ["fuodz.edentech.online",'fuodz-admin.test', 'localhost'],'127.0.0.1');
+        $ignoreDomain = in_array($requestHost, ["edentech.online",'fuodz-admin.test', 'localhost','127.0.0.1']);
 
         if (!app()->runningInConsole() && !$ignoreDomain) {
             $verificationCode = $this->getVerificationCode();
