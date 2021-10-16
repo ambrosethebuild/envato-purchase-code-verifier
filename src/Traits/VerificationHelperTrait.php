@@ -55,7 +55,9 @@ trait VerificationHelperTrait
         $apiEndPoint = config("epcv.api_endpoint");
         $purchaseVerifyApi = config("epcv.purchase_verify_api");
 
-        $response = Http::get($apiEndPoint . "" . $purchaseVerifyApi, [
+        $response = Http::withHeaders([
+            'origin' => url(''),
+        ])->get($apiEndPoint . "" . $purchaseVerifyApi, [
             'code' => $this->getVerificationCode(),
         ]);
 

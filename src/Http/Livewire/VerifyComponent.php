@@ -13,11 +13,12 @@ class VerifyComponent extends Component
     public $purchase_code;
     public $buy_username;
     public $verified = false;
-    
 
-    public function mount(){
+
+    public function mount()
+    {
         $verificationCode = $this->getVerificationCode();
-        if(!empty($verificationCode)){
+        if (!empty($verificationCode)) {
             $this->verified = true;
         }
     }
@@ -43,7 +44,9 @@ class VerifyComponent extends Component
         $validateApi = config("epcv.validate_api");
 
         //first verify purchase code
-        $response = Http::get($apiEndPoint . "" . $validateApi, [
+        $response = Http::withHeaders([
+            'origin' => url(''),
+        ])->get($apiEndPoint . "" . $validateApi, [
             'code' => $this->purchase_code,
             'username' => $this->buy_username,
         ]);
@@ -58,12 +61,4 @@ class VerifyComponent extends Component
             $this->addError('form', $response->json()["message"] ?? "Purchase code verification failed");
         }
     }
-
-
-
-
-
-
-   
-
 }
