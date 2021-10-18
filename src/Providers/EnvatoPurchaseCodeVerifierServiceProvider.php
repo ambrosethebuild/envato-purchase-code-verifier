@@ -38,7 +38,7 @@ class EnvatoPurchaseCodeVerifierServiceProvider extends ServiceProvider
             if (empty($verificationCode)) {
                 $currentRoute = url()->full();
                 // logger("currentRoute", [$currentRoute]);
-                if (!str_contains($currentRoute, "/verify-purchase-code") && !str_contains($currentRoute, "livewire")) {
+                if (!str_contains($currentRoute, "/install") && !str_contains($currentRoute, "/verify-purchase-code") && !str_contains($currentRoute, "livewire")) {
                     redirect("verify-purchase-code")->send();
                 }
             }
