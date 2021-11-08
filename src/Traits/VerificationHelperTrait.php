@@ -45,8 +45,8 @@ trait VerificationHelperTrait
 
         //
         $timelapse = $now - $lastTime;
-        //every 3days at least
-        return $timelapse >= 259200;
+        //every 15days at least
+        return $timelapse >= (86400 * 15);
     }
 
 
