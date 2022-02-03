@@ -13,7 +13,10 @@ class EnvatoPurchaseCodeVerifierServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__ . '/../../routes/envato-purchase-code-verifier.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'envato-purchase-code-verifier');
-
+        
+        $this->publishes([
+            __DIR__.'/../resources/views' => resource_path('views/vendor/envato-purchase-code-verifier'),
+        ]);
         //
         if ($this->app->runningInConsole()) {
 
