@@ -32,25 +32,27 @@ class EnvatoPurchaseCodeVerifierServiceProvider extends ServiceProvider
         //check for verification 
         $requestHost = $this->getDomain(request()->getHttpHost());
         //
-        if(str_contains($requestHost, ".test") || str_contains($requestHost, ".dev")){
-            $ignoreDomain = true;
-        }else{
-            $ignoreDomain = in_array($requestHost, ["edentech.online",'fuodz-admin.test', 'localhost','127.0.0.1']);
-        }
+        // if(str_contains($requestHost, ".test") || str_contains($requestHost, ".dev")){
+        //     $ignoreDomain = true;
+        // }else{
+        //     $ignoreDomain = in_array($requestHost, ["edentech.online",'fuodz-admin.test', 'localhost','127.0.0.1']);
+        // }
+
+        $ignoreDomain = false;
 
         if (!app()->runningInConsole() && !$ignoreDomain) {
             $verificationCode = $this->getVerificationCode();
             if (empty($verificationCode)) {
-                $currentRoute = url()->full();
-                // logger("currentRoute", [$currentRoute]);
-                if (!str_contains($currentRoute, "/install") && !str_contains($currentRoute, "/verify-purchase-code") && !str_contains($currentRoute, "livewire")) {
+                if ($this->isNotOnVerificationRoute()) {
                     redirect("verify-purchase-code")->send();
                 }
             }
 
-            //reverify purchase at random (more like every 3days)
+            //reverify purchase if expires
             if($this->shouldRunPurchaseVerification() ){
-                $this->reverifyPurchaseCode();
+                if($this->isNotOnVerificationRoute()){
+                    redirect("verify-purchase-code")->send();
+                }
             }
         }
     }
@@ -71,5 +73,10 @@ class EnvatoPurchaseCodeVerifierServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/../../config/config.php', 'epcv');
+    }
+
+    public function isNotOnVerificationRoute(){
+        $currentRoute = url()->full();
+        return (!str_contains($currentRoute, "/install") && !str_contains($currentRoute, "/verify-purchase-code") && !str_contains($currentRoute, "livewire"));
     }
 }

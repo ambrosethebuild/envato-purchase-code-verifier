@@ -41,32 +41,26 @@ trait VerificationHelperTrait
         if (!\Storage::exists($this->getVCTimestampPath())) {
             \Storage::put($this->getVCTimestampPath(), $now);
         }
-        $lastTime = \Storage::get($this->getVCTimestampPath());
-
-        //
-        $timelapse = $now - $lastTime;
-        //every 45days at least
-        return $timelapse >= (86400 * 45);
+        $lastTime = (int) \Storage::get($this->getVCTimestampPath());
+        return $now > $lastTime;
     }
 
 
-    public function reverifyPurchaseCode()
+
+    public function getVCTimestamp()
     {
-        $apiEndPoint = config("epcv.api_endpoint");
-        $purchaseVerifyApi = config("epcv.purchase_verify_api");
-
-        $response = Http::withHeaders([
-            'origin' => url(''),
-        ])->get($apiEndPoint . "" . $purchaseVerifyApi, [
-            'code' => $this->getVerificationCode(),
-        ]);
-
-        if (!$response->successful()) {
-            $this->setVerificationCode("");
-        } else {
-            \Storage::put($this->getVCTimestampPath(), time());
+        //
+        if (!\Storage::exists($this->getVCTimestampPath())) {
+            \Storage::put($this->getVCTimestampPath(), "");
         }
+        return \Storage::get($this->getVCTimestampPath());
     }
+    public function setVCTimestamp($value)
+    {
+        $this->getVCTimestamp();
+        \Storage::put($this->getVCTimestampPath(), $value);
+    }
+
 
     public function getVCTimestampPath()
     {
