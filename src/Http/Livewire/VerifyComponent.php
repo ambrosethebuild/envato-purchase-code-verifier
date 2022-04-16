@@ -22,9 +22,9 @@ class VerifyComponent extends Component
         if (!empty($verificationCode) && !$this->shouldRunPurchaseVerification()) {
             $this->verified = true;
         }else{
-            $this->purchase_code = setting('epv.code','');
-            $this->buy_username = setting('epv.username','');
-            $this->alert_email = setting('epv.email','');
+            // $this->purchase_code = setting('epv.code','');
+            // $this->buy_username = setting('epv.username','');
+            // $this->alert_email = setting('epv.email','');
         }
     }
     public function render()
