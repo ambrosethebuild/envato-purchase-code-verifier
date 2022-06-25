@@ -43,14 +43,16 @@ class EnvatoPurchaseCodeVerifierServiceProvider extends ServiceProvider
             $verificationCode = $this->getVerificationCode();
             if (empty($verificationCode)) {
                 if ($this->isNotOnVerificationRoute()) {
-                    redirect("verify-purchase-code")->send();
+                    //ENABLE THIS BACK WHEN READY
+                    //redirect("verify-purchase-code")->send();
                 }
             }
 
             //reverify purchase if expires
             if($this->shouldRunPurchaseVerification() ){
                 if($this->isNotOnVerificationRoute()){
-                    redirect("verify-purchase-code")->send();
+                    //ENABLE THIS BACK WHEN READY
+                   //redirect("verify-purchase-code")->send();
                 }
             }
         }
