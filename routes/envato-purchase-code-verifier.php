@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Ambrosethebuild\EnvatoPurchaseCodeVerifier\Http\Controllers\VerifyController;
+use Ambrosethebuild\EnvatoPurchaseCodeVerifier\Http\Livewire\VerifyComponent;
 
 Route::middleware('web')->group(function () {
     //verification-page
-    Route::get('verify-purchase-code', [VerifyController::class,'index'])->name('verify.purchase.code');
+    Route::get('verify-purchase-code', VerifyComponent::class)->name('verify.purchase.code');
 });

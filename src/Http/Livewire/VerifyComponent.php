@@ -21,15 +21,20 @@ class VerifyComponent extends Component
         $verificationCode = $this->getVerificationCode();
         if (!empty($verificationCode) && !$this->shouldRunPurchaseVerification()) {
             $this->verified = true;
-        }else{
-            // $this->purchase_code = setting('epv.code','');
-            // $this->buy_username = setting('epv.username','');
-            // $this->alert_email = setting('epv.email','');
         }
+
+        //COMMENT THIS OU BECAUSE owners data were getting exposed
+        /*
+         else {
+            $this->purchase_code = setting('epv.code','');
+            $this->buy_username = setting('epv.username','');
+            $this->alert_email = setting('epv.email','');
+        }
+        */
     }
     public function render()
     {
-        return view('envato-purchase-code-verifier::livewire.verify-component');
+        return view('envato-purchase-code-verifier::livewire.verify-component')->layout('envato-purchase-code-verifier::layouts.app');
     }
 
     public function verifyPurchase()
@@ -76,7 +81,6 @@ class VerifyComponent extends Component
                     "email" => $this->alert_email,
                 ]
             ])->save();
-
         } else {
             $this->addError('form', $response->json()["message"] ?? "Purchase code verification failed");
         }
