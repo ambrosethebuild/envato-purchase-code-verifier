@@ -448,6 +448,50 @@
     }
 
     /*
-
+fixed top-0 bottom-0 left-0 z-50 w-full h-full
+fixed top-0 bottom-0 left-0 w-full h-full bg-black opacity-75
+fixed top-0 bottom-0 left-0 flex items-center justify-center w-full h-full
 */
+    /* loading style */
+    .fixed {
+        position: fixed;
+    }
+
+    .top-0 {
+        top: 0;
+    }
+
+    .bottom-0 {
+        bottom: 0;
+    }
+
+    .left-0 {
+        left: 0;
+    }
+
+    .z-50 {
+        z-index: 50;
+    }
+
+    .h-full {
+        height: 100%;
+    }
+
+
+    .bg-black {
+        background-color: #000;
+    }
+
+    .opacity-75 {
+        opacity: 0.75;
+    }
+
+
+
+
+    .justify-center {
+        justify-content: center;
+    }
+
+    /* end loading style */
 </style>

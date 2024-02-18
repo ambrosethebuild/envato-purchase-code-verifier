@@ -39,7 +39,7 @@
                                                 <input
                                                     class="w-full pr-6 pl-4 py-4 font-bold placeholder-gray-400 border-0"
                                                     type="text" placeholder="Purchase Code"
-                                                    wire:model='purchase_code'>
+                                                    wire:model.defer='purchase_code'>
                                             </div>
                                             @error('purchase_code')
                                                 <div class="mt-1 text-xs text-red-700">{{ $message }}</div>
@@ -63,7 +63,7 @@
                                                 <input
                                                     class="w-full pr-6 pl-4 py-4 font-bold placeholder-gray-400 border-0"
                                                     type="text" placeholder="Buyers Username"
-                                                    wire:model='buy_username'>
+                                                    wire:model.defer='buy_username'>
                                             </div>
                                             @error('buy_username')
                                                 <div class="mt-1 text-xs text-red-700">{{ $message }}</div>
@@ -86,7 +86,8 @@
                                                 </span>
                                                 <input
                                                     class="w-full pr-6 pl-4 py-4 font-bold placeholder-gray-400 border-0"
-                                                    type="text" placeholder="Alert Email" wire:model='alert_email' />
+                                                    type="text" placeholder="Alert Email"
+                                                    wire:model.defer='alert_email' />
                                             </div>
                                             @error('alert_email')
                                                 <div class="mt-1 text-xs text-red-700">{{ $message }}</div>
@@ -116,4 +117,6 @@
             </div>
         </section>
     </div>
+
+    <x-loading />
 </div>
